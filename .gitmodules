@@ -1,0 +1,3 @@
+[submodule "external/cfgpath"]
+	path = external/cfgpath
+	url = https://github.com/LonghronShen/cfgpath.git
