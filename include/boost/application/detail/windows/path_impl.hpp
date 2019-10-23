@@ -14,12 +14,13 @@
 #include <cstdlib>
 
 #include <boost/detail/winapi/config.hpp>
-#if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
-#error Boost.Application requires at least the windows vista feature level of the windows sdk.
-#endif
 #include <boost/detail/winapi/dll.hpp>
 
 #include <shlobj.h>
+
+#if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
+#include <cfgpath/cfgpath.h>
+#endif
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
 # pragma once
@@ -94,6 +95,11 @@ namespace boost { namespace application { namespace detail {
         static bool KnownFolderPath( REFKNOWNFOLDERID _Id, filesystem::path &out )
         {
             PWSTR res = NULL;
+            #if BOOST_USE_WINAPI_VERSION < BOOST_WINAPI_VERSION_VISTA
+            auto path = libcfgpath::cfgpath::get_folder_path(libcfgpath::known_spefial_folder::DATA, "");
+            out = path.c_str();
+            return true;
+            #else
             if ( SUCCEEDED( ::SHGetKnownFolderPath( _Id, KF_FLAG_CREATE, NULL, &res ) ) )
             {
                 out = res;
@@ -101,6 +107,7 @@ namespace boost { namespace application { namespace detail {
                 return true;
             }
             return false;
+            #endif
         }
 
     public:
